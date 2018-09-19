@@ -21,6 +21,14 @@ class OrderOpreations(Resource):
             return {"message":"status approved"}
         return {"message":"Order not found"}, 404
 
+    def delete(self, id):
+        order = Order().get_by_id(id)
+
+        if order:
+            orders.remove(order)
+            return {"message":"order deleted successfully"},200
+        return {"message":"Order not found"}, 404
+
 
 
 class DisplayOrders(Resource):
