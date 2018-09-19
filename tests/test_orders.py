@@ -57,7 +57,7 @@ class TestOrders(unittest.TestCase):
         print(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(json.loads(res.data)[
-                         'message'], "Orders Completed")
+                         'message'], "status approved")
 
     def test_non_order_by_id(self):
         res = self.client.get(
