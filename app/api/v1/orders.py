@@ -9,3 +9,6 @@ class DisplayOrders(Resource):
         orders.append(order)
 
         return {"message":"Food order has been created"}, 201
+
+    def get(self):
+        return {"orders":[order.successive() for order in orders]}
