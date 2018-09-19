@@ -59,10 +59,6 @@ class TestOrders(unittest.TestCase):
         self.assertEqual(json.loads(res.data)[
                          'message'], "Orders Completed")
 
-    
-    
-
-
     def test_non_order_by_id(self):
         res = self.client.get(
             "/api/v1/orders/15",

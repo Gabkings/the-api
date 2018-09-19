@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_restful import Api
-from config import app_config
+from instance.config import app_config
 from app.api.v1.orders import OrderOpreations,DisplayOrders
+
 
 def create_app(config_stage):
     Gabriel = Flask(__name__)
