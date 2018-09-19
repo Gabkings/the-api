@@ -18,7 +18,7 @@ class OrderOpreations(Resource):
         order = Order().get_by_id(id)
 
         if order:
-            order.status="approved"
+            order.status="Orders Completed"
             return {"message":"status approved"}
         return {"message":"Order not found"}, 404
 
