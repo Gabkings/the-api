@@ -14,3 +14,8 @@ six==1.11.0
 Werkzeug==0.14.1
 coveralls
 codecov
+
+***********************
+pip install pytest-cov
+
+pytest --cov=app/tests
