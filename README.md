@@ -15,7 +15,7 @@ url(https://web.postman.co/collections/5297757-5bd5506e-1a6e-4b9b-9d90-1700f714f
 
 ### Orders:
 
-POST /v1/orders  - Create an order
+POST api/v1/orders  - Create an order
 <br>
 {       <br>
     "id": 1,
