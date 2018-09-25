@@ -1,1 +1,3 @@
 [![Build Status](https://travis-ci.com/Gabkings/the-api.svg?branch=develop)](https://travis-ci.com/Gabkings/the-api)   [![Maintainability](https://api.codeclimate.com/v1/badges/341c078ef39e63e8af17/maintainability)](https://codeclimate.com/github/Gabkings/the-api/maintainability)   [![Coverage Status](https://coveralls.io/repos/github/Gabkings/the-api/badge.svg?branch=develop)](https://coveralls.io/github/Gabkings/the-api?branch=develop)
+## My api sample documentation
+url(https://web.postman.co/collections/5297757-5bd5506e-1a6e-4b9b-9d90-1700f714f895?workspace=53e189ce-e915-4e5b-8e11-c56791173e49 )
