@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from instance.config import app_config
-from app.api.v1.orders import OrderOpreations,DisplayOrders
+from .api.v1.views.orders import OrderOpreations,DisplayOrders
 
 
 def create_app(config_stage):
