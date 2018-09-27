@@ -1,6 +1,7 @@
 orders = []
 
 class Order:
+    '''this carries all the details of order and initializing them'''
 
     order_id = 1
     def __init__(self,name=None,price=None,description=None, status="Pending"):

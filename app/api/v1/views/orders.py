@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_restful import Resource
-from .models import Order, orders
+from app.api.v1.models.models import Order, orders
 
 class OrderOpreations(Resource):
     
