@@ -100,3 +100,70 @@ class Users(Resource):
                     print(error)
                     return {'Message': 'current transaction is aborted'}, 500
 
+
+
+class Login(Resource):
+    """docstring for Login"""
+
+    parser = reqparse.RequestParser()
+
+    parser.add_argument(
+        'email',
+        type=str,
+        required=True,
+        help="Make sure email is entered"
+    )
+    parser.add_argument(
+        'password',
+        type=str,
+        required=True,
+        help="Make sure password is entered"
+    )
+
+    def post(self):
+
+        data = Login.parser.parse_args()
+        password = data["password"]
+        user_email = data["email"]
+        valid_email = re.compile(
+            r"(^[a-zA-Z0-9_.-]+@[a-zA-Z-]+\.[a-zA-Z-]+$)")
+
+        if not user_email:
+            return {'Message': 'Email field is required'}, 400
+        if not password:
+            return {'Message': 'Password field is required'}, 400
+
+        while True:
+            '''Validate user emails and password'''
+            if not (re.match(valid_email, user_email)):
+                return {"Message": "Make sure your email is valid"}, 400
+            elif re.search('[a-z]', password) is None:
+                return {"Message": "Password should have atleast one small letter in it"}, 400
+            elif re.search('[0-9]', password) is None:
+                return {"Message": "Password should have atleast one number in it"}, 400
+            elif re.search('[A-Z]', password) is None:
+                return {"Message": "Password should have atleast one capital letter in it"}, 400
+            else:
+                try:
+                    conn = db()
+                    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+                    cur.execute("SELECT * FROM users WHERE email = %(email)s ",
+                                {'email': user_email})
+                    res = cur.fetchone()
+
+                    if res is None:
+                        return {'Message': 'User email does not exist'}, 404
+                    else:
+                        checked_password = check_password_hash(
+                            res['password'], password)
+
+                        if checked_password == True:
+                            token = jwt.encode({'id': res['id'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, 'secret')
+                            return {'token': token.decode('UTF-8')}, 200
+
+                        return {'Message': 'Invalid credentials'}, 400
+                except (Exception, psycopg2.DatabaseError) as error:
+                    cur.execute("rollback;")
+                    print(error)
+                    return {'Message': 'current transaction is aborted'}, 500
