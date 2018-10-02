@@ -1,0 +1,2 @@
+# the-api
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a2845cd502194f0db95e24238b9247ff)](https://app.codacy.com/app/Gabkings/the-api?utm_source=github.com&utm_medium=referral&utm_content=Gabkings/the-api&utm_campaign=Badge_Grade_Dashboard)
