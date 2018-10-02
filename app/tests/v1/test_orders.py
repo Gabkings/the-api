@@ -21,7 +21,10 @@ class TestOrders(unittest.TestCase):
         data = {
             "name": "pizza",
             "price": 20,
-            "description": "sweet pizza"
+            "description": "sweet pizza",
+            "address":"voi",
+            "username":"Jose",
+            "user_id":12
         }
 
         res = self.client.post(
