@@ -2,36 +2,25 @@ import unittest
 import os
 import json
 from app import create_app
+from ...api.v2.models.db import init_db_test
 
-
-class Test_signin_register(unittest.TestCase):
-    def setUP(self):
+class Test_sign_up(unittest.TestCase):
+    def setUp(self):
         self.app = create_app("testing")
         self.client = self.app.test_client()
-        self.app_context = self.app.app_context()
-        self.app_context.push()
+        self.customer = {
+          "username":"Gitonga",
+          "email":"gabworks51@gmail.com",
+          "password":"qwueuASS445",
+          "confirm password":"qwueuASS445"
+        }
+        with self.app.app_context():
+            self.db = init_db_test()
 
-        self.create_user = json.dumps(dict(
-                name="Gabriel222",
-                email="gabworks23@gmail.com",
-                password='mchelejpg'))
-        self.login = data=json.dumps(dict(username="Gabriel222", password='mchelejpg'))
-                self.client = app.test_client()
-
-        self.signupuser = self.client.post(
-           'api/v2/auth/signup',
-           data=self.register_user,
-           content_type='application/json')
-
-        self.client.post(
-           '/v2/auth/login',
-           data=self.login,
-           content_type='application/json')
-
-    def test_create_user(self):
-
-
-
-
-
+    def test_signup(self):
+        response = self.client.post(
+            '/api/v2/auth/signup', data=json.dumps(self.customer),
+             content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+    def test_sign(self):
 

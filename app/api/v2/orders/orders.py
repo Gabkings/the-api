@@ -40,3 +40,17 @@ class Specific_order_detail(Resource):
             cur.execute("rollback;")
             print(error)
             return {'Message': 'current transaction is aborted'}, 500
+
+    def put(self,order_id):
+        try:
+            conn = db()
+            cur = conn.cursor()
+            updt = cur.execute("UPDATE orders SET status = 'Completed' WHERE order_id = order_id;")
+            conn.commit()
+            return {"message":"Order status has been updated successfully"}
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            cur.execute("rollback;")
+            print(error)
+            return {'Message': 'current transaction is aborted'}, 500
+
