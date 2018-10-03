@@ -2,8 +2,7 @@ from flask import Flask, request
 from flask_restful import Resource,reqparse
 import psycopg2
 from ..models.db import db
-import jwt
-import datetime
+from ..users.auth import check_auth
 
 class Meals(Resource):
     def get(self):
@@ -13,14 +12,14 @@ class Meals(Resource):
             cur = conn.cursor()
             cur.execute("SELECT * from meals")
             meals = cur.fetchall()
-            return {"Meals": meals}
+            return {"Meals": meals}, 200
         except (Exception, psycopg2.DatabaseError) as error:
             cur.execute("rollback;")
             print(error)
             return {'Message': 'current transaction is aborted'}, 500
         
-
-    def post(self):
+    @check_auth
+    def post(user, self):
         parser = reqparse.RequestParser(bundle_errors=True)
 
         parser.add_argument(

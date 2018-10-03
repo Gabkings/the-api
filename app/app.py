@@ -12,10 +12,8 @@ from .api.v2.models.db import init_db
 def create_app(config_stage):
     Gabriel = Flask(__name__)
     Gabriel.config.from_object(app_config[config_stage])
-    # Gabriel.config.from_pyfile('config.py')
-    with Gabriel.app_context():
-        init_db()
     api = Api(Gabriel)
+    init_db()
     api.add_resource(OrderOpreations, '/api/v1/orders/<int:id>')
     api.add_resource(DisplayOrders, '/api/v1/orders')
     api.add_resource(Users, '/api/v2/auth/signup')

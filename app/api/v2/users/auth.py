@@ -1,9 +1,11 @@
-# app/api/v2/resources/checkauth.py
-
 from flask import request
 import jwt
 from functools import wraps
+import psycopg2
+import psycopg2.extras
 
+
+from ..models.db import db
 
 def check_auth(f):
 
@@ -15,19 +17,19 @@ def check_auth(f):
             token = request.headers['x-access-token']
 
         if not token:
-            return {'message': 'Token is missing!'}, 401
+            return {'message': 'You don\'t have a token!'}, 401
 
         try:
             data = jwt.decode(token, 'secret')
             conn = db()
-            cur = conn.cursor()
+            cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-            current_user = cur.execute("SELECT * FROM users WHERE id = %(id)s ",
-                                       {'id': data["id"]})
-            print(current_user)
+            cur.execute("SELECT * FROM users WHERE id = %(id)s ",
+                        {'id': data["id"]})
+            current_user = cur.fetchone()
 
         except:
-            return {'message': 'Token is invalid!'}, 401
+            return {'message': 'Invalid token!'}, 401
 
         return f(current_user, *args, **kwargs)
 
