@@ -1,5 +1,9 @@
+import os
+
+
 class Config:
-    pass
+    SECRET_KEY = 'ASSSFFFGFFG%^$%##$%'
+    DATABASE_URL = os.getenv('DATABASE_URL')
 
 class DevelopmentConfig(Config):
     DEBUG=True
@@ -8,6 +12,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     DEBUG=True
     TESTING=True
+    DATABASE_URL="dbname='fastfood_test' host='localhost' port='5432' user='postgres' password='pass123'"
 
 class ProductionConfig(Config):
     pass
