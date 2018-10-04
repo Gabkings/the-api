@@ -7,6 +7,7 @@ import psycopg2.extras
 
 from ..models.db import db
 
+
 def check_auth(f):
 
     @wraps(f)

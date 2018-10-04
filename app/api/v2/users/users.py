@@ -170,16 +170,16 @@ class Login(Resource):
                     return {'Message': 'current transaction is aborted'}, 500
 
 
-class Updates_users_status:
+class Updates_users_status(Resource):
     """docstring for Updates_users_status" def __init__(self, arg):
         super(Updates_users_status,.__init__()
         self.arg = arg"""
 
-        def get(self, user_id):
+    def get(self, user_id):
         try:
             conn = db()
             cur = conn.cursor()
-            cur.execute("SELECT * from users WHERE id = user_id")
+            cur.execute("SELECT * from users WHERE id = user_id;")
             user = cur.fetchone()
             return jsonify({"Orders": user})
         except (Exception, psycopg2.DatabaseError) as error:
@@ -206,7 +206,7 @@ class Updates_users_status:
 
             conn = db()
             cur = conn.cursor()
-            updt = cur.execute("DELETE FROM users WHERE id = user_id")
+            updt = cur.execute("DELETE FROM users WHERE id = user_id;")
             conn.commit()
             return {"message": "Order status has been updated successfully"}, 200
 
