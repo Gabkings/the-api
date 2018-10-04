@@ -1,14 +1,17 @@
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    get_jwt_identity
+)
 from flask import Flask, request, jsonify
 from flask_restful import Resource, reqparse
 import psycopg2
 from ..models.db import db
-from .auth import check_auth
 import jwt
 from functools import wraps
 
 
 class User_orders(Resource):
-    @check_auth
+    @jwt_required
     def get(user, self):
         """get all orders"""
         try:
@@ -25,7 +28,7 @@ class User_orders(Resource):
             print(error)
             return {'Message': 'current transaction is aborted'}, 500
 
-    @check_auth
+    @jwt_required
     def post(user, self):
         parser = reqparse.RequestParser(bundle_errors=True)
 

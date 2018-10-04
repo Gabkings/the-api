@@ -1,11 +1,17 @@
 from flask import Flask, request
+from flask_jwt_extended import (
+     jwt_required, create_access_token,
+    get_jwt_identity
+)
 from flask_restful import Resource, reqparse
 import psycopg2
 from ..models.db import db
-from ..users.auth import check_auth
+from ..users.users import UserRole
 
 
 class Meals(Resource):
+
+
     def get(self):
         """get all orders"""
         try:
@@ -13,14 +19,19 @@ class Meals(Resource):
             cur = conn.cursor()
             cur.execute("SELECT * from meals")
             meals = cur.fetchall()
+            if not meals:
+                return {"Message":"No meals available"}
             return {"Meals": meals}, 200
         except (Exception, psycopg2.DatabaseError) as error:
             cur.execute("rollback;")
             print(error)
             return {'Message': 'current transaction is aborted'}, 500
 
-    @check_auth
-    def post(user, self):
+    roles = UserRole()
+    @jwt_required
+    def post(self): 
+        id = get_jwt_identity()
+        self.roles.role(id)
         parser = reqparse.RequestParser(bundle_errors=True)
 
         parser.add_argument(

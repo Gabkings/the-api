@@ -26,9 +26,16 @@ class TestReg(unittest.TestCase):
             data=json.dumps(user_data),
             content_type='application/json'
         )
-        response = json.loads(resp.data.decode('utf-8'))['token']
+        print(resp)
+        response = json.loads(resp.data.decode('utf-8'))['access_token']
         return response
 
+    def test_view_meals(self):
+        resVar = self.clientVar().get(
+        '/api/v2/menu',
+        content_type='application/json')
+        res = json.loads(resVar.data.decode('utf-8'))
+        self.assertEqual(resVar.status_code, 200)
 
     def user_post_a_meal(self):
         meal = {
@@ -41,7 +48,7 @@ class TestReg(unittest.TestCase):
             data=json.dumps(meal),
             headers={
                 "content-type": "application/json",
-                "x-access-token": self.get_token()
+                "Authorization": "Bearer" + self.get_token()
             })
         response = json.loads(resp.data.decode('utf-8'))
         self.assertEqual(resp['Message'], 'Meal created successfully')
