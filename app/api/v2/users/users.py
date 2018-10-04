@@ -1,3 +1,8 @@
+from flask import Flask, jsonify, request, abort
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    get_jwt_identity
+)
 from flask_restful import Resource, reqparse
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
@@ -44,6 +49,17 @@ class Users(Resource):
         """Creating a new user new user"""
 
         data = Users.parser.parse_args()
+        try:
+            if data['username'] == "":
+                return {"Message":"Username cannot be empty"}
+            elif data['email'] == "":
+                return {"message":"Email cannot be empty"}
+            elif data['password'] == "":
+                return {"Message":"Password cannot be empty"}
+            elif data['confirm password'] == "":
+                return {"message":"Confirm password cannot be empty"} 
+        except(Exception):
+            print("Something is wrong with the")
 
         email = data["email"]
         password = data["password"]
@@ -56,7 +72,10 @@ class Users(Resource):
 
         while True:
             """Validating the email and password to match the specified creteria"""
-            if not re.match(r"(^[a-zA-Z0-9_.-]+@[a-zA-Z-]+\.[a-zA-Z-]+$)", email):
+            if not re.search('[a-zA-Z0-9]',username):
+                '''validate username. should have at least one number,small letter and a capital letter'''
+                return{"Message":"validate username. should have at least one number,small letter and a capital letter"}
+            elif not re.match(r"(^[a-zA-Z0-9_.-]+@[a-zA-Z-]+\.[a-zA-Z-]+$)", email):
                 '''An valid email should have @ symbol and a dot before the @ symbol'''
                 return {"Message": "Enter a valid email address"}, 400
             elif re.search('[a-z]', password) is None:
@@ -100,6 +119,19 @@ class Users(Resource):
                     print(error)
                     return {'Message': 'current transaction is aborted'}, 500
 
+class UserRole():
+    
+    def role(self, user_id):
+        """Get user role"""
+        con = db()
+        cur = con.cursor()
+        
+        # check if user email exist 
+        cur.execute( "SELECT type FROM users WHERE email = %(email)s", {'email': user_id})
+        user = cur.fetchall()
+        print (user_id)
+        if user != "Admin":
+            abort(401, "You are not admin: You are a %s"%user_id)
 
 class Login(Resource):
     """docstring for Login"""
@@ -158,11 +190,10 @@ class Login(Resource):
                         checked_password = check_password_hash(
                             res['password'], password)
 
+                        print(checked_password)
                         if checked_password == True:
-                            token = jwt.encode({'id': res['id'], 'exp': datetime.datetime.utcnow(
-                            ) + datetime.timedelta(minutes=60)}, 'secret')
-                            return {'token': token.decode('UTF-8')}, 200
-
+                            token = create_access_token(identity=res['email'])
+                            return {"message":"login succeeded", "access_token":token}, 200
                         return {'Message': 'Invalid credentials'}, 400
                 except (Exception, psycopg2.DatabaseError) as error:
                     cur.execute("rollback;")
@@ -175,24 +206,33 @@ class Updates_users_status(Resource):
         super(Updates_users_status,.__init__()
         self.arg = arg"""
 
-    def get(self, user_id):
+    roles = UserRole()
+    @jwt_required
+    def get(self, user_id): 
+        id = get_jwt_identity()
+        self.roles.role(id)
         try:
             conn = db()
             cur = conn.cursor()
-            cur.execute("SELECT * from users WHERE id = user_id;")
+            cur.execute("SELECT * from users WHERE id =  %(id)s", {'id': user_id})
             user = cur.fetchone()
             return jsonify({"Orders": user})
         except (Exception, psycopg2.DatabaseError) as error:
             cur.execute("rollback;")
             print(error)
             return {'Message': 'current transaction is aborted'}, 500
-
+    roles = UserRole()
+    @jwt_required
     def put(self, user_id):
+        id = get_jwt_identity()
+        self.roles.role(id)
+        user_id = get_jwt_identity()
+        UserRole().role(user_id)
         try:
             conn = db()
             cur = conn.cursor()
-            updt = cur.execute(
-                "UPDATE users SET type = 'Admin' WHERE id = user_id;")
+            cur.execute(
+                "UPDATE users SET type = 'Admin' WHERE id =  %(id)s", {'id': user_id})
             conn.commit()
             return {"message": "Order status has been updated successfully"}, 201
 
@@ -200,8 +240,13 @@ class Updates_users_status(Resource):
             cur.execute("rollback;")
             print(error)
             return {'Message': 'current transaction is aborted'}, 500
-
+    roles = UserRole()
+    @jwt_required
     def delete(self, user_id):
+        id = get_jwt_identity()
+        self.roles.role(id)
+        user_id = get_jwt_identity()
+        UserRole().role(user_id)
         try:
 
             conn = db()

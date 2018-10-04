@@ -20,6 +20,7 @@ class TestReg(unittest.TestCase):
         resVar = self.clientVar().get(
         '/api/v2/orders/1',
         content_type='application/json')
+        print(resVar)
         res = json.loads(resVar.data.decode('utf-8'))
         self.assertEqual(resVar.status_code, 200)
 

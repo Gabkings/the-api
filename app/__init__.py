@@ -1,4 +1,8 @@
 from flask import Flask
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    get_jwt_identity
+)
 from flask_restful import Api
 from instance.config import app_config
 from .api.v1.views.orders import OrderOpreations, DisplayOrders
@@ -15,6 +19,7 @@ def create_app(config_stage):
     # Gabriel.config.from_pyfile('config.py')
     with Gabriel.app_context():
         init_db()
+    jwt = JWTManager(Gabriel)
     api = Api(Gabriel)
     api.add_resource(OrderOpreations, '/api/v1/orders/<int:id>')
     api.add_resource(DisplayOrders, '/api/v1/orders')
