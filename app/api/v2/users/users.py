@@ -90,7 +90,7 @@ class Users(Resource):
                         data['password'], method='sha256')
 
                     cur.execute("INSERT INTO users (email, username, password) VALUES (%(email)s, %(username)s, %(password)s);", {
-                        'email': data['email'], 'username': data['username'],'password': hashed_password})
+                        'email': data['email'], 'username': data['username'], 'password': hashed_password})
 
                     conn.commit()
 
@@ -145,7 +145,8 @@ class Login(Resource):
             else:
                 try:
                     conn = db()
-                    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                    cur = conn.cursor(
+                        cursor_factory=psycopg2.extras.RealDictCursor)
 
                     cur.execute("SELECT * FROM users WHERE email = %(email)s ",
                                 {'email': user_email})
@@ -158,7 +159,8 @@ class Login(Resource):
                             res['password'], password)
 
                         if checked_password == True:
-                            token = jwt.encode({'id': res['id'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, 'secret')
+                            token = jwt.encode({'id': res['id'], 'exp': datetime.datetime.utcnow(
+                            ) + datetime.timedelta(minutes=60)}, 'secret')
                             return {'token': token.decode('UTF-8')}, 200
 
                         return {'Message': 'Invalid credentials'}, 400
@@ -166,3 +168,49 @@ class Login(Resource):
                     cur.execute("rollback;")
                     print(error)
                     return {'Message': 'current transaction is aborted'}, 500
+
+
+class Updates_users_status:
+    """docstring for Updates_users_status" def __init__(self, arg):
+        super(Updates_users_status,.__init__()
+        self.arg = arg"""
+
+        def get(self, user_id):
+        try:
+            conn = db()
+            cur = conn.cursor()
+            cur.execute("SELECT * from users WHERE id = user_id")
+            user = cur.fetchone()
+            return jsonify({"Orders": user})
+        except (Exception, psycopg2.DatabaseError) as error:
+            cur.execute("rollback;")
+            print(error)
+            return {'Message': 'current transaction is aborted'}, 500
+
+    def put(self, user_id):
+        try:
+            conn = db()
+            cur = conn.cursor()
+            updt = cur.execute(
+                "UPDATE users SET type = 'Admin' WHERE id = user_id;")
+            conn.commit()
+            return {"message": "Order status has been updated successfully"}, 201
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            cur.execute("rollback;")
+            print(error)
+            return {'Message': 'current transaction is aborted'}, 500
+
+    def delete(self, user_id):
+        try:
+
+            conn = db()
+            cur = conn.cursor()
+            updt = cur.execute("DELETE FROM users WHERE id = user_id")
+            conn.commit()
+            return {"message": "Order status has been updated successfully"}, 200
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            cur.execute("rollback;")
+            print(error)
+            return {'Message': 'current transaction is aborted'}, 500
