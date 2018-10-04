@@ -44,7 +44,7 @@ class Specific_order_detail(Resource):
             cur = conn.cursor()
             updt = cur.execute("UPDATE orders SET status = 'Completed' WHERE order_id = order_id;")
             conn.commit()
-            return {"message":"Order status has been updated successfully"}
+            return {"message":"Order status has been updated successfully"},201
 
         except (Exception, psycopg2.DatabaseError) as error:
             cur.execute("rollback;")
@@ -57,7 +57,7 @@ class Specific_order_detail(Resource):
             cur = conn.cursor()
             updt = cur.execute("DELETE FROM orders WHERE order_id = order_id")
             conn.commit()
-            return {"message":"Order status has been updated successfully"}
+            return {"message":"Order status has been updated successfully"}, 200
 
         except (Exception, psycopg2.DatabaseError) as error:
             cur.execute("rollback;")
