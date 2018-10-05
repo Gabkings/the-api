@@ -13,7 +13,7 @@ from ..users.users import UserRole
 class Orders(Resource):
     roles = UserRole()
     @jwt_required
-    def put(self, order_id):
+    def get(self):
         id = get_jwt_identity()
         self.roles.role(id)
         """get all orders"""
@@ -76,7 +76,7 @@ class Specific_order_detail(Resource):
             try:
                 conn = db()
                 cur = conn.cursor()
-                order = cur.execute("SELECT * FROM orders WHERE order_id = %(order_id)s")
+                order = cur.execute("SELECT * FROM orders WHERE order_id = %(order_id)s", {"order_id":order_id})
                 if not order:
                     return {"Message":"The order you are trying to update does not exists"}
                 updt = cur.execute(

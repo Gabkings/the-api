@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,redirect
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
@@ -30,5 +30,13 @@ def create_app(config_stage):
     api.add_resource(User_orders, '/api/v2/users/orders')
     api.add_resource(Meals, '/api/v2/menu')
     api.add_resource(Updates_users_status, '/api/v2/users/<int:user_id>')
+
+    @Gabriel.route('/')
+    def home():
+        return redirect('https://theapi4.docs.apiary.io/')
+
+
+
+
 
     return Gabriel
