@@ -12,15 +12,15 @@ from functools import wraps
 
 class User_orders(Resource):
     @jwt_required
-    def get(user, self):
+    def get(self):
         """get all orders"""
         try:
             conn = db()
             cur = conn.cursor()
             cur.execute("SELECT * from orders")
             orders = cur.fetchall()
-            order_list = []
-            order_list.append(orders)
+            if not orders:
+                return {"message":"You have no orders available"}
 
             return {"Orders": order_list}, 200
         except (Exception, psycopg2.DatabaseError) as error:
@@ -29,7 +29,7 @@ class User_orders(Resource):
             return {'Message': 'current transaction is aborted'}, 500
 
     @jwt_required
-    def post(user, self):
+    def post(self):
         parser = reqparse.RequestParser(bundle_errors=True)
 
         parser.add_argument(

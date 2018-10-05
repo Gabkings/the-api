@@ -16,6 +16,21 @@ import datetime
 from ..models.db import db
 
 
+class UserRole():
+    
+    def role(self, user_id):
+        """Get user role"""
+        con = db()
+        cur = con.cursor()
+        
+        # check if user email exist 
+        cur.execute( "SELECT type FROM users WHERE email = %(email)s", {'email': user_id})
+        user = cur.fetchall()
+        print (user_id)
+        if user[0][0] != "Admin":
+            abort(401, "You are not admin: You are can't access that root")
+
+
 class Users(Resource):
     """Class for Register and getting users"""
     parser = reqparse.RequestParser()
@@ -72,10 +87,8 @@ class Users(Resource):
 
         while True:
             """Validating the email and password to match the specified creteria"""
-            if not re.search('[a-zA-Z0-9]',username):
-                '''validate username. should have at least one number,small letter and a capital letter'''
-                return{"Message":"validate username. should have at least one number,small letter and a capital letter"}
-            elif not re.match(r"(^[a-zA-Z0-9_.-]+@[a-zA-Z-]+\.[a-zA-Z-]+$)", email):
+
+            if not re.match(r"(^[a-zA-Z0-9_.-]+@[a-zA-Z-]+\.[a-zA-Z-]+$)", email):
                 '''An valid email should have @ symbol and a dot before the @ symbol'''
                 return {"Message": "Enter a valid email address"}, 400
             elif re.search('[a-z]', password) is None:
@@ -118,20 +131,27 @@ class Users(Resource):
                     cur.execute("rollback;")
                     print(error)
                     return {'Message': 'current transaction is aborted'}, 500
+    roles = UserRole()
+    @jwt_required
+    def get(self):
+        id = get_jwt_identity()
+        self.roles.role(id)
+        """get all users"""
+        try:
+            conn = db()
+            cur = conn.cursor()
+            cur.execute("SELECT * from users")
+            orders = cur.fetchall()
+            if not orders:
+                return {"message": "No users registered"}
+            else:
+                return jsonify({"Userss": orders})
+        except (Exception, psycopg2.DatabaseError) as error:
+            cur.execute("rollback;")
+            print(error)
+            return {'Message': 'current transaction is aborted'}, 500
 
-class UserRole():
-    
-    def role(self, user_id):
-        """Get user role"""
-        con = db()
-        cur = con.cursor()
-        
-        # check if user email exist 
-        cur.execute( "SELECT type FROM users WHERE email = %(email)s", {'email': user_id})
-        user = cur.fetchall()
-        print (user_id)
-        if user != "Admin":
-            abort(401, "You are not admin: You are a %s"%user_id)
+
 
 class Login(Resource):
     """docstring for Login"""
@@ -199,6 +219,7 @@ class Login(Resource):
                     cur.execute("rollback;")
                     print(error)
                     return {'Message': 'current transaction is aborted'}, 500
+                    
 
 
 class Updates_users_status(Resource):
@@ -208,7 +229,7 @@ class Updates_users_status(Resource):
 
     roles = UserRole()
     @jwt_required
-    def get(self, user_id): 
+    def get(self,user_id): 
         id = get_jwt_identity()
         self.roles.role(id)
         try:
@@ -216,14 +237,16 @@ class Updates_users_status(Resource):
             cur = conn.cursor()
             cur.execute("SELECT * from users WHERE id =  %(id)s", {'id': user_id})
             user = cur.fetchone()
-            return jsonify({"Orders": user})
+            if not user:
+                return {"message":"There are no currently users available"}
+            return {"Orders": user}
         except (Exception, psycopg2.DatabaseError) as error:
             cur.execute("rollback;")
             print(error)
             return {'Message': 'current transaction is aborted'}, 500
     roles = UserRole()
     @jwt_required
-    def put(self, user_id):
+    def put(self,user_id):
         id = get_jwt_identity()
         self.roles.role(id)
         user_id = get_jwt_identity()
@@ -232,9 +255,9 @@ class Updates_users_status(Resource):
             conn = db()
             cur = conn.cursor()
             cur.execute(
-                "UPDATE users SET type = 'Admin' WHERE id =  %(id)s", {'id': user_id})
+                "UPDATE users SET type = 'Admin' WHERE email =  %(email)s", {'email': user_id})
             conn.commit()
-            return {"message": "Order status has been updated successfully"}, 201
+            return {"message": "User has been promoted  successfully"}, 201
 
         except (Exception, psycopg2.DatabaseError) as error:
             cur.execute("rollback;")
@@ -242,7 +265,7 @@ class Updates_users_status(Resource):
             return {'Message': 'current transaction is aborted'}, 500
     roles = UserRole()
     @jwt_required
-    def delete(self, user_id):
+    def delete(self,user_id):
         id = get_jwt_identity()
         self.roles.role(id)
         user_id = get_jwt_identity()
@@ -251,9 +274,12 @@ class Updates_users_status(Resource):
 
             conn = db()
             cur = conn.cursor()
-            updt = cur.execute("DELETE FROM users WHERE id = user_id;")
+            user = cur.execute("SELECT * FROM users WHERE email = %(email)s",{"email":user_id})
+            if not user:
+                return {"Message":"The user does not exists"}
+            updt = cur.execute("DELETE FROM users WHERE email = %(email)s",{"email":user_id})
             conn.commit()
-            return {"message": "Order status has been updated successfully"}, 200
+            return {"message": "User has been deleted successfully"}, 200
 
         except (Exception, psycopg2.DatabaseError) as error:
             cur.execute("rollback;")

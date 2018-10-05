@@ -13,7 +13,8 @@ from functools import wraps
 
 class User_orders(Resource):
     @jwt_required
-    def get(user, self):
+    @staticmethod
+    def get():
         """get all orders"""
         try:
             conn = db()
@@ -29,7 +30,7 @@ class User_orders(Resource):
             return {'Message': 'current transaction is aborted'}, 500
 
     @jwt_required
-    def post(user, self):
+    def post(self):
         parser = reqparse.RequestParser(bundle_errors=True)
 
         parser.add_argument(
